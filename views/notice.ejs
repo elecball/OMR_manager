@@ -1,0 +1,88 @@
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+  }
+  .container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      max-width: 600px;
+      width: 100%;
+  }
+  h1 {
+      text-align: center;
+      color: #333;
+  }
+  .guidelines {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin-bottom: 20px;
+  }
+  ol {
+      padding-left: 20px;
+  }
+  li {
+      margin-bottom: 10px;
+  }
+  .button-container {
+      text-align: center;
+  }
+  .back-button {
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      text-decoration: none;
+      display: inline-block;
+  }
+  .back-button:hover {
+      background-color: #357abd;
+  }
+  @media (max-width: 480px) {
+      .container {
+          padding: 10px;
+      }
+      .guidelines {
+          height: 250px;
+      }
+  }
+</style>
+
+<div class="container">
+  <h1>수험생 유의사항</h1>
+  <div class="guidelines">
+      <ol>
+          <% const guidelines = [
+              "시험 시작 30분 전까지 고사장에 입실해야 합니다.",
+              "본인 확인을 위해 수험표와 신분증을 반드시 지참하세요.",
+              "휴대전화, 스마트워치 등 전자기기 사용은 금지됩니다.",
+              "시험 중 부정행위가 적발될 경우 즉시 퇴실 조치됩니다.",
+              "답안 작성은 반드시 검은색 볼펜 또는 컴퓨터용 사인펜을 사용하세요.",
+              "시험 종료 후 감독관의 지시에 따라 질서 있게 퇴실해 주세요.",
+              "코로나19 예방을 위해 마스크를 반드시 착용하고 입실해 주세요.",
+              "시험 중 화장실 이용은 허용되지 않으니 유의하시기 바랍니다.",
+              "시험 시작 10분 후부터는 입실이 제한되니 시간을 엄수해 주세요.",
+              "객관식 문항은 컴퓨터용 답안지에 정확히 표기해 주세요."
+          ]; %>
+          <% guidelines.forEach(function(guideline) { %>
+              <li><%= guideline %></li>
+          <% }); %>
+      </ol>
+  </div>
+  <div class="button-container">
+      <a href="/" class="back-button">돌아가기</a>
+  </div>
+</div>

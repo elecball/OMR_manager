@@ -1,0 +1,185 @@
+<style>
+  body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      height: 100vh; /* 전체 뷰포트 높이를 사용 */
+      overflow: hidden; /* body 레벨에서 스크롤 방지 */
+  }
+  #pdf-viewer {
+      flex: 1;
+      padding: 20px;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      /* height: 100%; */
+  }
+  #omr-card {
+      width: 300px;
+      padding: 20px;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      /* height: 100%; 부모 요소의 전체 높이 사용 */
+  }
+  .table-container {
+      flex: 1;
+      overflow-y: auto; /* 세로 스크롤 추가 */
+  }
+  table {
+      width: 100%;
+      border-collapse: collapse;
+  }
+  th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+  }
+  th {
+      background-color: #f2f2f2;
+      position: sticky;
+      top: 0; /* 테이블 헤더를 고정 */
+      z-index: 1;
+  }
+  .controls {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+  }
+  #canvas-container {
+      flex: 1;
+      overflow: auto;
+      position: relative;
+  }
+  #img {
+    position: absolute;
+    pointer-events: none;
+  }
+  #canvas {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+  }
+  .highlighted {
+    background-color: #f0f8ff; /* 원하는 색상으로 변경하세요 */
+  }
+  .table-container tbody td:first-child {
+    cursor: pointer; /* 커서를 손가락 모양으로 변경 */
+  }
+  #submit-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #5865F2;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 20px;
+  }
+  #submit-btn:hover {
+    background-color: #4752C4;
+  }
+  .btn {
+    display: block;
+    width: 60px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #5865F2;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+</style>
+
+<div id="pdf-viewer">
+  <div id="canvas-container">
+    <img id="img" src="data:image/jpg;base64,<%= images %>"/>
+    <canvas id="canvas"></canvas>
+  </div>
+  <div class="controls">
+      <button id="prev-question" class="btn">이전</button>
+      <span id="question-num"></span>
+      <button id="next-question" class="btn">다음</button>
+  </div>
+</div>
+<div id="omr-card">
+  <h2>OMR 카드</h2>
+  <div class="table-container">
+      <table>
+          <thead>
+              <tr>
+                  <th>문제</th>
+                  <th>1</th>
+                  <th>2</th>
+                  <th>3</th>
+                  <th>4</th>
+                  <th>5</th>
+              </tr>
+          </thead>
+          <tbody>
+              <% for(let i = 1; i <= 20; i++) { %>
+                  <tr>
+                      <td><%= i %></td>
+                      <% for(let j = 1; j <= 5; j++) { %>
+                          <td>
+                              <input type="radio" name="q<%= i %>" value="<%= j %>" id="q<%= i %>-<%= j %>">
+                              <label for="q<%= i %>-<%= j %>"></label>
+                          </td>
+                      <% } %>
+                  </tr>
+              <% } %>
+          </tbody>
+      </table>
+  </div>
+  <button id="submit-btn">제출</button>
+</div>
+
+<script>
+  let currentQuestion = 1;
+  const totalQuestions = 20; // 전체 페이지 수를 설정합니다. 필요에 따라 변경하세요.
+
+  document.getElementById('prev-question').addEventListener('click', () => {
+      if (currentQuestion > 1) {
+          currentQuestion--;
+          updateQuestionNumber();
+      }
+  });
+
+  document.getElementById('next-question').addEventListener('click', () => {
+      if (currentQuestion < totalQuestions) {
+          currentQuestion++;
+          updateQuestionNumber();
+      }
+  });
+
+  document.querySelectorAll('.table-container tbody tr').forEach((row, index) => {
+    row.addEventListener('click', () => {
+        currentQuestion = index + 1;
+        updateQuestionNumber();
+    });
+  });
+
+  function updateQuestionNumber() {
+    document.getElementById('question-num').innerHTML = `문제 ${currentQuestion} / ${totalQuestions}`;
+
+    // 모든 행에서 하이라이트 제거
+    document.querySelectorAll('.highlighted').forEach(row => row.classList.remove('highlighted'));
+
+    // 현재 문제에 해당하는 OMR 행에 하이라이트 추가
+    const rowToHighlight = document.querySelector(`.table-container tbody tr:nth-child(${currentQuestion})`);
+    if (rowToHighlight) {
+        rowToHighlight.classList.add('highlighted');
+    }
+  }
+
+
+  // 페이지 로드 시 초기 페이지 번호 설정
+  updateQuestionNumber();
+
+</script>
