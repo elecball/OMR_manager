@@ -1,72 +1,71 @@
 <style>
   body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      height: 100vh; /* 전체 뷰포트 높이를 사용 */
-      overflow: hidden; /* body 레벨에서 스크롤 방지 */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-user-select: none !important; 
+    -moz-user-select: -moz-none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
   }
   #pdf-viewer {
-      flex: 1;
-      padding: 20px;
-      overflow: auto;
-      display: flex;
-      flex-direction: column;
-      /* height: 100%; */
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
   }
   #omr-card {
-      width: 300px;
-      padding: 20px;
-      background-color: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      /* height: 100%; 부모 요소의 전체 높이 사용 */
+    width: 300px;
+    padding: 20px;
+    background-color: #f0f0f0;
+    display: flex;
+    flex-direction: column;
   }
   .table-container {
-      flex: 1;
-      overflow-y: auto; /* 세로 스크롤 추가 */
+    flex: 1;
+    overflow-y: auto;
   }
   table {
-      width: 100%;
-      border-collapse: collapse;
+    width: 100%;
+    border-collapse: collapse;
   }
   th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: center;
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
   }
   th {
-      background-color: #f2f2f2;
-      position: sticky;
-      top: 0; /* 테이블 헤더를 고정 */
-      z-index: 1;
+    background-color: #f2f2f2;
+    position: sticky;
+    top: 0;
+    z-index: 1;
   }
   .controls {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-between;
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
   }
   #canvas-container {
-      flex: 1;
-      overflow: auto;
-      position: relative;
-  }
-  #img {
-    position: absolute;
-    pointer-events: none;
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    /* width: 100vw;
+    height: 100vh; */
   }
   #canvas {
-    height: 100%;
     width: 100%;
+    height: 100%;
+    cursor: crosshair;
     position: absolute;
-    border: 10px;
+    z-index: 2;
+    overflow: hidden;
   }
   .highlighted {
-    background-color: #f0f8ff; /* 원하는 색상으로 변경하세요 */
-  }
-  .table-container tbody td:first-child {
-    cursor: pointer; /* 커서를 손가락 모양으로 변경 */
+    background-color: #f0f8ff;
   }
   #submit-btn {
     display: block;
@@ -96,10 +95,14 @@
     cursor: pointer;
     transition: background-color 0.3s;
   }
+  #img {
+    position: absolute;
+    pointer-events: none;
+  }
 </style>
 
 <div id="pdf-viewer">
-  <div id="canvas-container">
+  <div id="canvas-container" >
     <canvas id="canvas"></canvas>
     <img id="img" src="data:image/jpg;base64,<%= images[1] %>"/>
     
@@ -143,9 +146,12 @@
 </div>
 
 <script>
+  // 기존 문제 변경 로직 유지
   let currentQuestion = 1;
   const totalQuestions = 20;
   const images = "<%= images %>".split(",");
+
+  window.ondrag = (e) => {console.log(e)};
 
   window.onbeforeunload = () => {
     event.returnValue = true;
@@ -174,18 +180,12 @@
 
   function updateQuestionNumber() {
     document.getElementById('question-num').innerHTML = `문제 ${currentQuestion} / ${totalQuestions}`;
-
-    // 모든 행에서 하이라이트 제거
     document.querySelectorAll('.highlighted').forEach(row => row.classList.remove('highlighted'));
-
-    // 현재 문제에 해당하는 OMR 행에 하이라이트 추가
     const rowToHighlight = document.querySelector(`.table-container tbody tr:nth-child(${currentQuestion})`);
-    if (rowToHighlight) {
-        rowToHighlight.classList.add('highlighted');
-    }
+    if (rowToHighlight) rowToHighlight.classList.add('highlighted');
 
     try {
-      console.log(images.length)
+      // console.log(images.length)
       document.querySelector("#img").src = `data:image/jpg;base64,${images[currentQuestion]}`;
     } catch (e) {console.log(e)}
       
@@ -193,4 +193,63 @@
 
   updateQuestionNumber();
 
+  // 드로잉 캔버스 설정
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    ctx.beginPath();
+    ctx.moveTo(e.offsetX, e.offsetY);
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (isDrawing) {
+      ctx.lineTo(e.offsetX, e.offsetY);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    isDrawing = false;
+  });
+
+  canvas.addEventListener('mouseout', () => {
+    isDrawing = false;
+  });
+
+  // 터치 지원 추가
+  canvas.addEventListener('touchstart', (e) => {
+    isDrawing = true;
+    const touch = e.touches[0];
+    const rect = canvas.getBoundingClientRect();
+    ctx.beginPath();
+    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
+  });
+
+  canvas.addEventListener('touchmove', (e) => {
+    if (isDrawing) {
+      e.preventDefault(); // 스크롤 방지
+      const touch = e.touches[0];
+      const rect = canvas.getBoundingClientRect();
+      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    }
+  });
+
+  canvas.addEventListener('touchend', () => {
+    isDrawing = false;
+  });
+
+  canvas.addEventListener('touchcancel', () => {
+    isDrawing = false;
+  });
 </script>
