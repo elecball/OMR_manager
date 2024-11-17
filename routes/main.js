@@ -46,9 +46,18 @@ router.get('/exam', async (req, res) => {
 
   
 
-  image = fs.readFileSync('./images/1.jpg').toString('base64');
+  var images = [''];
+  for(var i = 1; i <= 20; i++) {
+    try {
+      im = fs.readFileSync(`./images/${String(i).padStart(2, '0')}.jpg`).toString('base64');
+      images.push(im);
+    } catch (e) {
+      images.push("");
+    }
+  }
+  console.log(images)
 
-  res.render('exam', { user: req.user, images: image });
+  res.render('exam', { user: req.user, images: images });
 });
 
 router.post('/exam', async (req, res) => {

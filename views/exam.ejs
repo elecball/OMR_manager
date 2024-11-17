@@ -60,6 +60,7 @@
     height: 100%;
     width: 100%;
     position: absolute;
+    border: 10px;
   }
   .highlighted {
     background-color: #f0f8ff; /* 원하는 색상으로 변경하세요 */
@@ -99,8 +100,9 @@
 
 <div id="pdf-viewer">
   <div id="canvas-container">
-    <img id="img" src="data:image/jpg;base64,<%= images %>"/>
     <canvas id="canvas"></canvas>
+    <img id="img" src="data:image/jpg;base64,<%= images[1] %>"/>
+    
   </div>
   <div class="controls">
       <button id="prev-question" class="btn">이전</button>
@@ -142,26 +144,31 @@
 
 <script>
   let currentQuestion = 1;
-  const totalQuestions = 20; // 전체 페이지 수를 설정합니다. 필요에 따라 변경하세요.
+  const totalQuestions = 20;
+  const images = "<%= images %>".split(",");
+
+  window.onbeforeunload = () => {
+    event.returnValue = true;
+  }
 
   document.getElementById('prev-question').addEventListener('click', () => {
-      if (currentQuestion > 1) {
-          currentQuestion--;
-          updateQuestionNumber();
-      }
+    if (currentQuestion > 1) {
+      currentQuestion--;
+      updateQuestionNumber();
+    }
   });
 
   document.getElementById('next-question').addEventListener('click', () => {
-      if (currentQuestion < totalQuestions) {
-          currentQuestion++;
-          updateQuestionNumber();
-      }
+    if (currentQuestion < totalQuestions) {
+      currentQuestion++;
+      updateQuestionNumber();
+    }
   });
 
   document.querySelectorAll('.table-container tbody tr').forEach((row, index) => {
     row.addEventListener('click', () => {
-        currentQuestion = index + 1;
-        updateQuestionNumber();
+      currentQuestion = index + 1;
+      updateQuestionNumber();
     });
   });
 
@@ -176,10 +183,14 @@
     if (rowToHighlight) {
         rowToHighlight.classList.add('highlighted');
     }
+
+    try {
+      console.log(images.length)
+      document.querySelector("#img").src = `data:image/jpg;base64,${images[currentQuestion]}`;
+    } catch (e) {console.log(e)}
+      
   }
 
-
-  // 페이지 로드 시 초기 페이지 번호 설정
   updateQuestionNumber();
 
 </script>
