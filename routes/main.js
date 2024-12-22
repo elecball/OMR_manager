@@ -7,11 +7,11 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   
   if (!req.user) {
-    res.render('main', { user: req.user, applied: false })
-    return
+    res.render('main', { user: req.user, applied: false });
+    return;
   }
   const applicationStatus = await Application.findOne({ userId: req.user.id });
-  res.render('main', { user: req.user, applied: !!applicationStatus })
+  res.render('main', { user: req.user, applied: !!applicationStatus });
 });
 
 router.get('/notice', (req, res) => res.render('notice'));
@@ -28,7 +28,7 @@ router.post('/apply', async (req, res) => {
   }
 
   await Application.create({ userId: req.user.id });
-  res.json({ success: true, message: '성공적으로 응시되었습니다' });
+  res.json({ success: true, message: '성공적으로 지원되었습니다.' });
 });
 
 router.get('/exam', async (req, res) => {

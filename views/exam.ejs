@@ -1,16 +1,24 @@
+<head>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/svg-pen-sketch"></script>
+</head>
+
 <style>
   body {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     display: flex;
     height: 100vh;
     overflow: hidden;
-    -webkit-user-select: none !important; 
+    -webkit-user-select: none !important;
     -moz-user-select: -moz-none !important;
     -ms-user-select: none !important;
     user-select: none !important;
+    background: white !important;
+    align-items: normal;
   }
+
   #pdf-viewer {
     flex: 1;
     padding: 20px;
@@ -18,6 +26,7 @@
     display: flex;
     flex-direction: column;
   }
+
   #omr-card {
     width: 300px;
     padding: 20px;
@@ -25,30 +34,37 @@
     display: flex;
     flex-direction: column;
   }
+
   .table-container {
     flex: 1;
     overflow-y: auto;
   }
+
   table {
     width: 100%;
     border-collapse: collapse;
   }
-  th, td {
+
+  th,
+  td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: center;
   }
+
   th {
     background-color: #f2f2f2;
     position: sticky;
     top: 0;
     z-index: 1;
   }
+
   .controls {
     margin-top: 20px;
     display: flex;
     justify-content: space-between;
   }
+
   #canvas-container {
     flex: 1;
     position: relative;
@@ -56,6 +72,7 @@
     /* width: 100vw;
     height: 100vh; */
   }
+
   #canvas {
     width: 100%;
     height: 100%;
@@ -64,9 +81,11 @@
     z-index: 2;
     overflow: hidden;
   }
+
   .highlighted {
     background-color: #f0f8ff;
   }
+
   #submit-btn {
     display: block;
     width: 100%;
@@ -80,9 +99,11 @@
     transition: background-color 0.3s;
     margin-top: 20px;
   }
+
   #submit-btn:hover {
     background-color: #4752C4;
   }
+
   .btn {
     display: block;
     width: 60px;
@@ -95,6 +116,7 @@
     cursor: pointer;
     transition: background-color 0.3s;
   }
+
   #img {
     position: absolute;
     pointer-events: none;
@@ -102,56 +124,59 @@
 </style>
 
 <div id="pdf-viewer">
-  <div id="canvas-container" >
-    <canvas id="canvas"></canvas>
-    <img id="img" src="data:image/jpg;base64,<%= images[1] %>"/>
-    
+  <div id="canvas-container">
+    <svg id="canvas"></svg>
+    <img id="img" src="data:image/jpg;base64,<%= images[1] %>" />
+
   </div>
   <div class="controls">
-      <button id="prev-question" class="btn">이전</button>
-      <span id="question-num"></span>
-      <button id="next-question" class="btn">다음</button>
+    <button id="prev-question" class="btn">이전</button>
+    <span id="question-num"></span>
+    <button id="next-question" class="btn">다음</button>
   </div>
 </div>
 <div id="omr-card">
   <h2>OMR 카드</h2>
   <div class="table-container">
-      <table>
-          <thead>
-              <tr>
-                  <th>문제</th>
-                  <th>1</th>
-                  <th>2</th>
-                  <th>3</th>
-                  <th>4</th>
-                  <th>5</th>
-              </tr>
-          </thead>
-          <tbody>
-              <% for(let i = 1; i <= 20; i++) { %>
-                  <tr>
-                      <td><%= i %></td>
-                      <% for(let j = 1; j <= 5; j++) { %>
-                          <td>
-                              <input type="radio" name="q<%= i %>" value="<%= j %>" id="q<%= i %>-<%= j %>">
-                              <label for="q<%= i %>-<%= j %>"></label>
-                          </td>
-                      <% } %>
-                  </tr>
+    <table>
+      <thead>
+        <tr>
+          <th>문제</th>
+          <th>1</th>
+          <th>2</th>
+          <th>3</th>
+          <th>4</th>
+          <th>5</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for(let i=1; i <=20; i++) { %>
+          <tr>
+            <td>
+              <%= i %>
+            </td>
+            <% for(let j=1; j <=5; j++) { %>
+              <td>
+                <input type="radio" name="q<%= i %>" value="<%= j %>" id="q<%= i %>-<%= j %>">
+                <label for="q<%= i %>-<%= j %>"></label>
+              </td>
               <% } %>
-          </tbody>
-      </table>
+          </tr>
+          <% } %>
+      </tbody>
+    </table>
   </div>
   <button id="submit-btn">제출</button>
 </div>
 
 <script>
-  // 기존 문제 변경 로직 유지
+  let canvas = document.getElementById("canvas");
   let currentQuestion = 1;
   const totalQuestions = 20;
   const images = "<%= images %>".split(",");
+  let drawings;
 
-  window.ondrag = (e) => {console.log(e)};
+  window.ondrag = (e) => { console.log(e) };
 
   window.onbeforeunload = () => {
     event.returnValue = true;
@@ -179,6 +204,7 @@
   });
 
   function updateQuestionNumber() {
+    canvas.innerHTML = drawings.get(String(currentQuestion)) ?? '';
     document.getElementById('question-num').innerHTML = `문제 ${currentQuestion} / ${totalQuestions}`;
     document.querySelectorAll('.highlighted').forEach(row => row.classList.remove('highlighted'));
     const rowToHighlight = document.querySelector(`.table-container tbody tr:nth-child(${currentQuestion})`);
@@ -187,69 +213,26 @@
     try {
       // console.log(images.length)
       document.querySelector("#img").src = `data:image/jpg;base64,${images[currentQuestion]}`;
-    } catch (e) {console.log(e)}
-      
+    } catch (e) { console.log(e) }
   }
 
+  drawings = new Map(Object.entries(JSON.parse(localStorage.getItem('drawings') ?? '{}')));
+  canvas.innerHTML = drawings.get(String(currentQuestion)) ?? '';
   updateQuestionNumber();
 
   // 드로잉 캔버스 설정
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  let isDrawing = false;
+  let svgSketch = SvgPenSketch.default;
 
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
+  const strokeStyle = { "stroke": "red", "stroke-width": "3px" };
+  const sketch = new svgSketch(canvas, strokeStyle);
 
-  canvas.addEventListener('mousedown', (e) => {
-    isDrawing = true;
-    ctx.beginPath();
-    ctx.moveTo(e.offsetX, e.offsetY);
-  });
-
-  canvas.addEventListener('mousemove', (e) => {
-    if (isDrawing) {
-      ctx.lineTo(e.offsetX, e.offsetY);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-  });
-
-  canvas.addEventListener('mouseup', () => {
-    isDrawing = false;
-  });
-
-  canvas.addEventListener('mouseout', () => {
-    isDrawing = false;
-  });
-
-  // 터치 지원 추가
-  canvas.addEventListener('touchstart', (e) => {
-    isDrawing = true;
-    const touch = e.touches[0];
-    const rect = canvas.getBoundingClientRect();
-    ctx.beginPath();
-    ctx.moveTo(touch.clientX - rect.left, touch.clientY - rect.top);
-  });
-
-  canvas.addEventListener('touchmove', (e) => {
-    if (isDrawing) {
-      e.preventDefault(); // 스크롤 방지
-      const touch = e.touches[0];
-      const rect = canvas.getBoundingClientRect();
-      ctx.lineTo(touch.clientX - rect.left, touch.clientY - rect.top);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-  });
-
-  canvas.addEventListener('touchend', () => {
-    isDrawing = false;
-  });
-
-  canvas.addEventListener('touchcancel', () => {
-    isDrawing = false;
-  });
+  sketch.getElement();
+  sketch.penUpCallback = (path, event) => {
+    drawings.set(String(currentQuestion), canvas.innerHTML);
+    localStorage.setItem('drawings', JSON.stringify(Object.fromEntries(drawings)));
+  };
+  sketch.eraserUpCallback = (event) => {
+    drawings.set(String(currentQuestion), canvas.innerHTML);
+    localStorage.setItem('drawings', JSON.stringify(Object.fromEntries(drawings)));
+  };
 </script>

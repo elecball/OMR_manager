@@ -1,87 +1,62 @@
+<head>
+  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <style>
-  body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-  }
   .container {
-      background-color: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      width: 300px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
   }
-  h1 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-  }
+
   form {
-      display: flex;
-      flex-direction: column;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+    width: 100%;
   }
+
   label {
-      margin-bottom: 15px;
-      display: flex;
-      align-items: center;
-      font-size: 14px;
-      color: #333;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    color: #333;
   }
+
   input[type="checkbox"] {
-      margin-right: 10px;
+    margin-right: 10px;
   }
-  button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      background-color: #5865F2;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s;
+
+  .btn.apply {
+    background-color: #5865F2;
+    color: white;
   }
-  button:hover {
-      background-color: #4752C4;
+
+  .btn.apply:hover {
+    background-color: #4752C4;
   }
-  button:disabled {
-      background-color: #cccccc;
-      cursor: not-allowed;
+
+  .btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    color: black;
   }
-  .btn {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: none;
-      border-radius: 5px;
-      background-color: #f0f0f0;
-      color: #333;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      text-align: center;
-      text-decoration: none;
-      box-sizing: border-box;
-  }
-  .btn:hover {
-      background-color: #e0e0e0;
+
+  .btn:disabled:hover {
+    background-color: #e0e0e0;
   }
 </style>
 
 <div class="container">
-  <h1>지원</h1>
+  <h1>시험 지원</h1>
   <form id="apply-form" action="/apply" method="POST">
-      <label>
-          <input type="checkbox" required id="agree-terms">
-          약관에 동의합니다
-      </label>
-      <button type="submit" id="submit-btn" disabled>지원하기</button>
+    <label>
+      <input type="checkbox" required id="agree-terms">
+      수험생 유의사항을 확인했습니다.
+    </label>
+    <button class="btn apply" type="submit" id="submit-btn" disabled>지원하기</button>
   </form>
   <a href="/" class="btn">돌아가기</a>
 </div>
@@ -91,12 +66,12 @@
   const submitButton = document.getElementById('submit-btn');
 
   // 체크박스 상태에 따라 버튼 활성화/비활성화
-  agreeCheckbox.addEventListener('change', function() {
-      submitButton.disabled = !this.checked;
+  agreeCheckbox.addEventListener('change', function () {
+    submitButton.disabled = !this.checked;
   });
 
   // 폼 제출 이벤트 핸들러 추가
-  document.getElementById("apply-form").addEventListener("submit", async function(event) {
+  document.getElementById("apply-form").addEventListener("submit", async function (event) {
     event.preventDefault(); // 페이지 리로드 방지
 
     try {

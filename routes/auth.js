@@ -11,7 +11,7 @@ passport.use(new DiscordStrategy({
   scope: ['identify']
 }, async (accessToken, refreshToken, profile, done) => {
   let user = await User.findOne({ discordId: profile.id });
-  if (!user) user = await User.create({ discordId: profile.id, username: profile.username, discriminator: profile.discriminator });
+  if (!user) user = await User.create({ discordId: profile.id, username: profile.username, discriminator: profile.discriminator, userObject: profile });
   return done(null, user);
 }));
 
