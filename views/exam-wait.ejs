@@ -4,25 +4,49 @@
 </head>
 
 <style>
-  /* 안내문 스타일 */
   .container p {
     color: #555;
     font-size: 16px;
     line-height: 1.5;
     margin: 10px 0;
   }
-
 </style>
 
 <div style="height: 100%; width: 100%; justify-content: center; align-items: center; display: flex;">
   <div class="container">
     <h1>시험 대기 중</h1>
+    <h2 id="time"></h2>
     <p>현재 시험이 시작되지 않았습니다.</p>
-    <p>시험 시작 시간이 되면 이 페이지를 새로고침하여 시험에 응시해 주세요.</p>
-    <div>
-      <a href="/exam" class="btn">새로고침</a>
-      <a href="/" class="btn">돌아가기</a>
-    </div>
-    
+    <p>시험 시작 시간이 되면 자동으로 페이지가 새로고침 됩니다.</p>
+    <a href="/" class="btn">돌아가기</a>
   </div>
 </div>
+
+<script>
+  let startTime = Number("<%= time %>");
+
+  (() => {
+    if (!startTime || startTime == 0) return;
+    setInterval(() => {
+      let diff = Math.ceil(startTime / 1000 - Date.now() / 1000);
+      if (diff <= 0) return window.location.reload();
+      let dur = convertDuration(diff);
+      document.getElementById('time').textContent = dur;
+    }, 100);
+
+  })();
+
+  function convertDuration(sec) {
+    const units = ['초', '분', '시간', '일', '년'];
+    const cycles = [60, 60, 24, 365.25];
+    let t = sec;
+    const times = [];
+    for (const cycle of cycles) {
+      times.push(Math.floor(t % cycle));
+      t = Math.floor(t / cycle);
+      if (!t) break;
+    }
+    if (t) times.push(t);
+    return times.map((t, idx) => `${t}${units[idx]}`).reverse().join(' ');
+  }
+</script>

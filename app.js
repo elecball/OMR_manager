@@ -3,10 +3,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
-const mainRoutes = require('./routes/main');
-const authRoutes = require('./routes/auth');
+const Storage = require('./utils/storage');
+
+Storage.load();
 
 const app = express();
+const expressWs = require('express-ws');
+
 
 // MongoDB 연결
 mongoose.connect(process.env.MONGO_URI)
@@ -20,10 +23,13 @@ app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUniniti
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.static(__dirname + '/public'));
+expressWs(app);
 
 // 뷰 엔진 설정
 app.set('view engine', 'ejs');
 
+const mainRoutes = require('./routes/main');
+const authRoutes = require('./routes/auth');
 // 라우터 설정
 app.use('/', mainRoutes);
 app.use('/auth', authRoutes);

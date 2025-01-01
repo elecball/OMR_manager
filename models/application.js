@@ -1,10 +1,8 @@
 const mongoose = require('mongoose');
 
 const applicationSchema = new mongoose.Schema({
-  userId: String,
-  started: { type: Boolean, default: false },
-  startedAt: { type: Date, default: null },
-  appliedAt: { type: Date, default: Date.now }
+  start: { type: Date, default: null },
+  duration: { type: Number, default: null }
 });
 
 module.exports = mongoose.model('Application', applicationSchema);
